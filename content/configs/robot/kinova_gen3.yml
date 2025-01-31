@@ -1,0 +1,55 @@
+robot_cfg:
+  kinematics:
+    urdf_path: "robot/kinova_gen3_description/kinova_gen3.urdf"
+    asset_root_path: "robot/kinova_gen3_description"
+    root_link: "root_link"
+    base_link: "base_link"
+    ee_link: "tool_frame"
+
+    collision_link_names:
+      [
+        "base_link",
+        "shoulder_link",
+        "half_arm_1_link",
+        "half_arm_2_link",
+        "forearm_link",
+        "spherical_wrist_1_link",
+        "spherical_wrist_2_link",
+        "bracelet_link",
+      ]
+
+    self_collision_ignore:
+      {
+        "base_link": ["shoulder_link"],
+        "shoulder_link": ["half_arm_1_link"],
+        "half_arm_1_link": ["half_arm_2_link"],
+        "half_arm_2_link": ["forearm_link"],
+        "forearm_link": ["spherical_wrist_1_link"],
+        "spherical_wrist_1_link": ["spherical_wrist_2_link"],
+        "spherical_wrist_2_link": ["bracelet_link"],
+      }
+
+    mesh_link_names:
+      [
+        "base_link",
+        "shoulder_link",
+        "half_arm_1_link",
+        "half_arm_2_link",
+        "forearm_link",
+        "spherical_wrist_1_link",
+        "spherical_wrist_2_link",
+        "bracelet_link",
+      ]
+
+    cspace:
+      joint_names:
+        [
+          "joint_1",
+          "joint_2",
+          "joint_3",
+          "joint_4",
+          "joint_5",
+          "joint_6",
+          "joint_7",
+        ]
+      retract_config: [0.0, -0.8, 0.0, 1.5, 0.0, 0.4, 0.0]

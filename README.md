@@ -39,6 +39,7 @@ Proper base placement is crucial for task execution feasibility and performance 
 ### Prerequisites
 - Conda package manager
 - C++ compiler for building optimization terms
+- License of [COPT](https://www.shanshu.ai/copt) solver
 
 ### Setup
 

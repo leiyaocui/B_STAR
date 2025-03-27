@@ -16,7 +16,8 @@ for ROBOT_NAME in "${ROBOT_LIST[@]}"; do
             --log_level SUCCESS \
             --log_dir "${OUTPUT_DIR}" \
             --robot_cfg_path "${ROBOT_CFG_PATH}/${ROBOT_NAME}_w_base.yml" \
-            --traj_data_path "${FILE}" # \
+            --traj_data_path "${FILE}" \
+            --disable_ground_plane # \
             # --disable_initial_guess \
             # --ret_all_steps
     done

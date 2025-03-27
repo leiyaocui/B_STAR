@@ -110,6 +110,7 @@ def construct_problem(
     T_ee2world_list: list[np.ndarray],
     opt_cfg: dict,
     with_self_collision: bool = True,
+    all_cost_time_dict: dict = None,
 ):
     traj_q_lower_bound = model.lowerPositionLimit.reshape(1, -1).repeat(
         traj_q_init.shape[0], axis=0
@@ -126,16 +127,27 @@ def construct_problem(
     prob.set_variable(traj_q_init, traj_q_lower_bound, traj_q_upper_bound)
     prob.set_trust_region_size(trust_region_size, min_trust_region_size)
 
+    start_time_probe = perf_counter()
     prob.add_term(
         opt_term.TrajSmoothTerm(threshold=opt_cfg["traj_smooth_term"]["threshold"]),
         merit_coeff=opt_cfg["traj_smooth_term"]["merit_coeff"],
     )
+    end_time_probe = perf_counter()
+    all_cost_time_dict["construct_traj_smooth_term"] = end_time_probe - start_time_probe
+
+    start_time_probe = perf_counter()
     prob.add_term(
         opt_term.BaseFixationTerm(
             threshold=opt_cfg["base_fixation_term"]["threshold"],
         ),
         merit_coeff=opt_cfg["base_fixation_term"]["merit_coeff"],
     )
+    end_time_probe = perf_counter()
+    all_cost_time_dict["construct_traj_joint_limit_term"] = (
+        end_time_probe - start_time_probe
+    )
+
+    start_time_probe = perf_counter()
     prob.add_term(
         opt_term.EEPoseTerm(
             model,
@@ -147,7 +159,11 @@ def construct_problem(
         ),
         merit_coeff=opt_cfg["ee_pose_term"]["merit_coeff"],
     )
+    end_time_probe = perf_counter()
+    all_cost_time_dict["construct_ee_pose_term"] = end_time_probe - start_time_probe
+
     if with_self_collision:
+        start_time_probe = perf_counter()
         prob.add_term(
             opt_term.DiscreteCollisionTerm(
                 model,
@@ -158,6 +174,10 @@ def construct_problem(
                 threshold=opt_cfg["self_collision_term"]["threshold"],
             ),
             merit_coeff=opt_cfg["self_collision_term"]["merit_coeff"],
+        )
+        end_time_probe = perf_counter()
+        all_cost_time_dict["construct_self_collision_term"] = (
+            end_time_probe - start_time_probe
         )
     return prob
 
@@ -190,23 +210,35 @@ def main(args):
 
     results = {}
     for idx, (traj_name, traj_data) in enumerate(data_dict.items()):
+        if idx > 1:
+            break
         logger.log(
             args.log_level, f"[{idx + 1} / {len(data_dict)}] Processing {traj_name}..."
         )
+
+        all_cost_time_dict = {}
 
         start_time = perf_counter()
         num_tries = 0
         while num_tries < opt_cfg["max_tries"]:
             num_tries += 1
+            all_cost_time_dict[f"try_{num_tries}"] = {}
 
+            start_time_probe = perf_counter()
             traj_q_init, timestep_T_ee2world_list, T_ee2world_list = parse_traj_data(
                 traj_data, model, ee_frame_id, args.num_timesteps, rng_gen=rng_gen
+            )
+            end_time_probe = perf_counter()
+            all_cost_time_dict[f"try_{num_tries}"]["inverse_kinematics"] = (
+                end_time_probe - start_time_probe
             )
             logger.success(
                 f"Succeeded to initialize variable for {traj_name} after {num_tries} tries."
             )
 
             if not args.disable_initial_guess:
+                all_cost_time_dict[f"try_{num_tries}"]["initial_guess"] = {}
+                start_time_probe = perf_counter()
                 prob_initial_guess = construct_problem(
                     model,
                     collision_model,
@@ -216,12 +248,28 @@ def main(args):
                     T_ee2world_list,
                     opt_cfg,
                     with_self_collision=False,
+                    all_cost_time_dict=all_cost_time_dict[f"try_{num_tries}"][
+                        "initial_guess"
+                    ],
                 )
+                end_time_probe = perf_counter()
+                all_cost_time_dict[f"try_{num_tries}"]["initial_guess"][
+                    "construct_problem"
+                ] = end_time_probe - start_time_probe
+
+                start_time_probe = perf_counter()
                 result = prob_initial_guess.solve(
                     solver="COPT",
                     solver_verbose=args.solver_verbose,
                     ret_all_steps=args.ret_all_steps,
+                    all_cost_time_dict=all_cost_time_dict[f"try_{num_tries}"][
+                        "initial_guess"
+                    ],
                 )
+                end_time_probe = perf_counter()
+                all_cost_time_dict[f"try_{num_tries}"]["initial_guess"][
+                    "solve_problem"
+                ] = end_time_probe - start_time_probe
 
                 if result.status == opt_prob.ProbStatus.Converged:
                     logger.success(
@@ -236,6 +284,7 @@ def main(args):
 
                 traj_q_init = result.variable
 
+            start_time_probe = perf_counter()
             prob = construct_problem(
                 model,
                 collision_model,
@@ -245,11 +294,23 @@ def main(args):
                 T_ee2world_list,
                 opt_cfg,
                 with_self_collision=True,
+                all_cost_time_dict=all_cost_time_dict[f"try_{num_tries}"],
             )
+            end_time_probe = perf_counter()
+            all_cost_time_dict[f"try_{num_tries}"]["construct_problem"] = (
+                end_time_probe - start_time_probe
+            )
+
+            start_time_probe = perf_counter()
             result = prob.solve(
                 solver="COPT",
                 solver_verbose=args.solver_verbose,
                 ret_all_steps=args.ret_all_steps,
+                all_cost_time_dict=all_cost_time_dict[f"try_{num_tries}"],
+            )
+            end_time_probe = perf_counter()
+            all_cost_time_dict[f"try_{num_tries}"]["solve_problem"] = (
+                end_time_probe - start_time_probe
             )
 
             if result.status == opt_prob.ProbStatus.Converged:
@@ -266,6 +327,7 @@ def main(args):
 
         end_time = perf_counter()
         cost_time = end_time - start_time
+        all_cost_time_dict["total"] = cost_time
 
         results[traj_name] = {
             "status": result.status.value,
@@ -277,6 +339,7 @@ def main(args):
         }
         if args.ret_all_steps:
             results[traj_name]["variable_all_steps"] = result.variable_all_steps
+        results[traj_name]["all_cost_time_dict"] = all_cost_time_dict
 
         statistics = calc_statistics(results)
         logger.log(

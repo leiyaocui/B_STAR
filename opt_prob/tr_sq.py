@@ -1,3 +1,5 @@
+from time import perf_counter
+
 import cvxpy as cp
 import numpy as np
 from loguru import logger
@@ -101,6 +103,7 @@ class TR_SP:
         solver_verbose: bool = False,
         print_variable_dof: int = 3,
         ret_all_steps: bool = False,
+        all_cost_time_dict: dict = None,
         **kwargs,
     ) -> ProbResult:
         """
@@ -118,11 +121,18 @@ class TR_SP:
             The number of degrees of freedom to print for the variable
         ret_all_steps : bool, optional
             Whether to return all steps of the variable
+        all_cost_time_dict : dict, optional
+            The dictionary to store all cost time
         kwargs : dict
             Additional keyword arguments for the solver
         """
         result = self._solve(
-            solver, canon_backend, solver_verbose, ret_all_steps, **kwargs
+            solver,
+            canon_backend,
+            solver_verbose,
+            ret_all_steps,
+            all_cost_time_dict,
+            **kwargs,
         )
         merit, result.cost_values, result.constraint_violations = (
             self.prob_manager.eval(result.variable)
@@ -150,25 +160,44 @@ class TR_SP:
         canon_backend: str,
         solver_verbose: bool,
         ret_all_steps: bool,
+        all_cost_time_dict: dict,
         **kwargs,
     ):
         result = ProbResult()
         result.variable = self.prob_manager.variable_value
+        all_cost_time_dict["step_0"] = {}
+        start_time_probe = perf_counter()
         merit_prev, result.cost_values, result.constraint_violations = (
-            self.prob_manager.eval(result.variable)
+            self.prob_manager.eval(
+                result.variable, all_cost_time_dict=all_cost_time_dict["step_0"]
+            )
         )
+        end_time_probe = perf_counter()
+        all_cost_time_dict["step_0"]["total_eval"] = end_time_probe - start_time_probe
         if ret_all_steps:
             result.variable_all_steps.append(result.variable)
+
+        num_step = 1
 
         num_merit_coeff_iter = 0
         num_iter = 0
         partially_converged = False
         trust_region_size = self.trust_region_size
         while num_iter < self.max_iter:
+            all_cost_time_dict[f"step_{num_step}"] = {}
+
             self.prob_manager.set_variable(result.variable)
-            self.prob_manager.construct()
+            start_time_probe = perf_counter()
+            self.prob_manager.construct(all_cost_time_dict[f"step_{num_step}"])
+            end_time_probe = perf_counter()
+            all_cost_time_dict[f"step_{num_step}"]["total_linearization"] = (
+                end_time_probe - start_time_probe
+            )
 
             while np.any(trust_region_size > self.min_trust_region_size):
+                if f"step_{num_step}" not in all_cost_time_dict:
+                    all_cost_time_dict[f"step_{num_step}"] = {}
+
                 partially_converged = False
                 self.prob_manager.set_variable(result.variable)
 
@@ -186,11 +215,16 @@ class TR_SP:
                     trust_regions[0], trust_regions[1]
                 )
 
+                start_time_probe = perf_counter()
                 self.prob_manager.solve(
                     solver=solver,
                     canon_backend=canon_backend,
                     solver_verbose=solver_verbose,
                     **kwargs,
+                )
+                end_time_probe = perf_counter()
+                all_cost_time_dict[f"step_{num_step}"]["optimizer"] = (
+                    end_time_probe - start_time_probe
                 )
                 if self.prob_manager.problem_status != cp.OPTIMAL:
                     logger.error(
@@ -200,14 +234,33 @@ class TR_SP:
                     return result
 
                 variable_curr = self.prob_manager.variable_value
+                start_time_probe = perf_counter()
                 merit_curr, cost_values_curr, constraint_violations_curr = (
-                    self.prob_manager.eval(variable_curr)
+                    self.prob_manager.eval(
+                        variable_curr,
+                        all_cost_time_dict=all_cost_time_dict[f"step_{num_step}"],
+                    )
                 )
+                end_time_probe = perf_counter()
+                all_cost_time_dict[f"step_{num_step}"]["total_eval"] = (
+                    end_time_probe - start_time_probe
+                )
+
+                start_time_probe = perf_counter()
                 (
                     approx_merit_curr,
                     approx_cost_values_curr,
                     approx_constraint_violations_curr,
-                ) = self.prob_manager.eval(variable_curr, eval_approx=True)
+                ) = self.prob_manager.eval(
+                    variable_curr,
+                    eval_approx=True,
+                    all_cost_time_dict=all_cost_time_dict[f"step_{num_step}"],
+                )
+                all_cost_time_dict[f"step_{num_step}"]["total_eval_approx"] = (
+                    perf_counter() - start_time_probe
+                )
+
+                num_step += 1
 
                 actual_improve = merit_prev - merit_curr
                 approx_improve = merit_prev - approx_merit_curr

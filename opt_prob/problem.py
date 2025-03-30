@@ -64,22 +64,15 @@ class ProbManager:
     def scale_merit_coeff(self, idx_term: int, scale: float):
         self.merit_coeffs[idx_term].value = self.merit_coeffs[idx_term].value * scale
 
-    def construct(
-        self, all_cost_time_dict: dict
-    ) -> tuple[cp.Expression, list[cp.Expression]]:
+    def construct(self) -> tuple[cp.Expression, list[cp.Expression]]:
         total_cost = 0.0
         total_constraints = [
             self.variable_bounds[0] <= self.variable,
             self.variable <= self.variable_bounds[1],
         ]
         for i, term in enumerate(self.terms):
-            start_time_probe = perf_counter()
             cost, constraint = term.apply(self.variable)
             total_cost += cost * self.merit_coeffs[i]
-            end_time_probe = perf_counter()
-            all_cost_time_dict[f"linearization_{term.name}"] = (
-                end_time_probe - start_time_probe
-            )
             total_constraints.extend(constraint)
 
         self.problem = cp.Problem(cp.Minimize(total_cost), total_constraints)
@@ -105,10 +98,7 @@ class ProbManager:
             self.problem_status = cp.SOLVER_ERROR
 
     def eval(
-        self,
-        variable: np.ndarray,
-        eval_approx: bool = False,
-        all_cost_time_dict: dict = None,
+        self, variable: np.ndarray, eval_approx: bool = False
     ) -> tuple[float, list[dict], list[dict]]:
         if eval_approx:
             variable_prev = self.variable.value
@@ -119,18 +109,7 @@ class ProbManager:
         constraint_violations: list[dict] = []
         for i, term in enumerate(self.terms):
             if term.type in [TermType.COST_SQUARE, TermType.COST_ABS]:
-                start_time_probe = perf_counter()
                 value, is_satisfied = term.eval(variable, eval_approx)
-                end_time_probe = perf_counter()
-                if all_cost_time_dict is not None:
-                    if not eval_approx:
-                        all_cost_time_dict[f"eval_{term.name}"] = (
-                            end_time_probe - start_time_probe
-                        )
-                    else:
-                        all_cost_time_dict[f"eval_{term.name}_approx"] = (
-                            end_time_probe - start_time_probe
-                        )
                 cost_values.append(
                     {
                         "idx": i,
@@ -142,18 +121,7 @@ class ProbManager:
                     }
                 )
             elif term.type in [TermType.CONSTRAINT_EQ, TermType.CONSTRAINT_INEQ]:
-                start_time_probe = perf_counter()
                 value, is_satisfied = term.eval(variable, eval_approx)
-                end_time_probe = perf_counter()
-                if all_cost_time_dict is not None:
-                    if not eval_approx:
-                        all_cost_time_dict[f"eval_{term.name}"] = (
-                            end_time_probe - start_time_probe
-                        )
-                    else:
-                        all_cost_time_dict[f"eval_{term.name}_approx"] = (
-                            end_time_probe - start_time_probe
-                        )
                 constraint_violations.append(
                     {
                         "idx": i,

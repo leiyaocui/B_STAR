@@ -165,39 +165,35 @@ class TR_SP:
     ):
         result = ProbResult()
         result.variable = self.prob_manager.variable_value
-        all_cost_time_dict["step_0"] = {}
-        start_time_probe = perf_counter()
         merit_prev, result.cost_values, result.constraint_violations = (
-            self.prob_manager.eval(
-                result.variable, all_cost_time_dict=all_cost_time_dict["step_0"]
-            )
+            self.prob_manager.eval(result.variable)
         )
-        end_time_probe = perf_counter()
-        all_cost_time_dict["step_0"]["total_eval"] = end_time_probe - start_time_probe
         if ret_all_steps:
             result.variable_all_steps.append(result.variable)
 
-        num_step = 1
+        all_cost_time_dict["inner_layer"] = []
+        all_cost_time_dict["outer_layer"] = []
 
         num_merit_coeff_iter = 0
         num_iter = 0
         partially_converged = False
         trust_region_size = self.trust_region_size
+
+        start_time_outer_layer = perf_counter()
+        start_time_inner_layer = None
         while num_iter < self.max_iter:
-            all_cost_time_dict[f"step_{num_step}"] = {}
+            if start_time_inner_layer is None:
+                start_time_inner_layer = perf_counter()
+            else:
+                all_cost_time_dict["inner_layer"].append(
+                    perf_counter() - start_time_inner_layer
+                )
+                start_time_inner_layer = perf_counter()
 
             self.prob_manager.set_variable(result.variable)
-            start_time_probe = perf_counter()
-            self.prob_manager.construct(all_cost_time_dict[f"step_{num_step}"])
-            end_time_probe = perf_counter()
-            all_cost_time_dict[f"step_{num_step}"]["total_linearization"] = (
-                end_time_probe - start_time_probe
-            )
+            self.prob_manager.construct()
 
             while np.any(trust_region_size > self.min_trust_region_size):
-                if f"step_{num_step}" not in all_cost_time_dict:
-                    all_cost_time_dict[f"step_{num_step}"] = {}
-
                 partially_converged = False
                 self.prob_manager.set_variable(result.variable)
 
@@ -215,16 +211,11 @@ class TR_SP:
                     trust_regions[0], trust_regions[1]
                 )
 
-                start_time_probe = perf_counter()
                 self.prob_manager.solve(
                     solver=solver,
                     canon_backend=canon_backend,
                     solver_verbose=solver_verbose,
                     **kwargs,
-                )
-                end_time_probe = perf_counter()
-                all_cost_time_dict[f"step_{num_step}"]["optimizer"] = (
-                    end_time_probe - start_time_probe
                 )
                 if self.prob_manager.problem_status != cp.OPTIMAL:
                     logger.error(
@@ -234,76 +225,57 @@ class TR_SP:
                     return result
 
                 variable_curr = self.prob_manager.variable_value
-                start_time_probe = perf_counter()
                 merit_curr, cost_values_curr, constraint_violations_curr = (
-                    self.prob_manager.eval(
-                        variable_curr,
-                        all_cost_time_dict=all_cost_time_dict[f"step_{num_step}"],
-                    )
+                    self.prob_manager.eval(variable_curr)
                 )
-                end_time_probe = perf_counter()
-                all_cost_time_dict[f"step_{num_step}"]["total_eval"] = (
-                    end_time_probe - start_time_probe
-                )
-
-                start_time_probe = perf_counter()
                 (
                     approx_merit_curr,
                     approx_cost_values_curr,
                     approx_constraint_violations_curr,
-                ) = self.prob_manager.eval(
-                    variable_curr,
-                    eval_approx=True,
-                    all_cost_time_dict=all_cost_time_dict[f"step_{num_step}"],
-                )
-                all_cost_time_dict[f"step_{num_step}"]["total_eval_approx"] = (
-                    perf_counter() - start_time_probe
-                )
-
-                num_step += 1
+                ) = self.prob_manager.eval(variable_curr, eval_approx=True)
 
                 actual_improve = merit_prev - merit_curr
                 approx_improve = merit_prev - approx_merit_curr
                 merit_improve_ratio = actual_improve / approx_improve
 
-                logger.opt(lazy=True).info(
-                    "\n========== Iteration ==========\n"
-                    "Number of Merit Coefficient Increase: {}\n"
-                    "Number of Iteration: {}\n"
-                    # "========== Previous Actual ==========\n"
-                    # "Cost Values:\n{}\n"
-                    # "Constraint Violations:\n{}\n"
-                    # "========== Current Actual ==========\n"
-                    # "Cost Values:\n{}\n"
-                    # "Constraint Violations:\n{}\n"
-                    # "========== Curret Approx ==========\n"
-                    # "Cost Values:\n{}\n"
-                    # "Constraint Violations:\n{}\n"
-                    "========== Merit ==========\n"
-                    "Previous Actual: {}\n"
-                    "Current Actual: {}\n"
-                    "Current Approx: {}\n"
-                    "========== Improvement ==========\n"
-                    "Actual Improvement: {}\n"
-                    "Approximate Improvement: {}\n"
-                    "Approximate Improvement Ratio: {}\n"
-                    "Improvement Ratio: {}",
-                    lambda: num_merit_coeff_iter,
-                    lambda: num_iter,
-                    # lambda: pformat_table(result.cost_values),
-                    # lambda: pformat_table(result.constraint_violations),
-                    # lambda: pformat_table(cost_values_curr),
-                    # lambda: pformat_table(constraint_violations_curr),
-                    # lambda: pformat_table(approx_cost_values_curr),
-                    # lambda: pformat_table(approx_constraint_violations_curr),
-                    lambda: merit_prev,
-                    lambda: merit_curr,
-                    lambda: approx_merit_curr,
-                    lambda: actual_improve,
-                    lambda: approx_improve,
-                    lambda: approx_improve / merit_prev,
-                    lambda: merit_improve_ratio,
-                )
+                # logger.opt(lazy=True).info(
+                #     "\n========== Iteration ==========\n"
+                #     "Number of Merit Coefficient Increase: {}\n"
+                #     "Number of Iteration: {}\n"
+                #     # "========== Previous Actual ==========\n"
+                #     # "Cost Values:\n{}\n"
+                #     # "Constraint Violations:\n{}\n"
+                #     # "========== Current Actual ==========\n"
+                #     # "Cost Values:\n{}\n"
+                #     # "Constraint Violations:\n{}\n"
+                #     # "========== Curret Approx ==========\n"
+                #     # "Cost Values:\n{}\n"
+                #     # "Constraint Violations:\n{}\n"
+                #     "========== Merit ==========\n"
+                #     "Previous Actual: {}\n"
+                #     "Current Actual: {}\n"
+                #     "Current Approx: {}\n"
+                #     "========== Improvement ==========\n"
+                #     "Actual Improvement: {}\n"
+                #     "Approximate Improvement: {}\n"
+                #     "Approximate Improvement Ratio: {}\n"
+                #     "Improvement Ratio: {}",
+                #     lambda: num_merit_coeff_iter,
+                #     lambda: num_iter,
+                #     # lambda: pformat_table(result.cost_values),
+                #     # lambda: pformat_table(result.constraint_violations),
+                #     # lambda: pformat_table(cost_values_curr),
+                #     # lambda: pformat_table(constraint_violations_curr),
+                #     # lambda: pformat_table(approx_cost_values_curr),
+                #     # lambda: pformat_table(approx_constraint_violations_curr),
+                #     lambda: merit_prev,
+                #     lambda: merit_curr,
+                #     lambda: approx_merit_curr,
+                #     lambda: actual_improve,
+                #     lambda: approx_improve,
+                #     lambda: approx_improve / merit_prev,
+                #     lambda: merit_improve_ratio,
+                # )
 
                 if approx_improve < 0:
                     logger.warning("Convexification is probably wrong")
@@ -361,6 +333,13 @@ class TR_SP:
                 if (len(result.cost_values) == 0) or np.all(
                     [it["is_satisfied"] for it in result.cost_values]
                 ):
+                    all_cost_time_dict["inner_layer"].append(
+                        perf_counter() - start_time_inner_layer
+                    )
+                    all_cost_time_dict["outer_layer"].append(
+                        perf_counter() - start_time_outer_layer
+                    )
+
                     logger.info("Convergence reached, and constraints satisfied")
                     result.status = ProbStatus.Converged
                     return result
@@ -369,6 +348,13 @@ class TR_SP:
                     result.status = ProbStatus.Unconverged
 
                     if partially_converged or num_iter == self.max_iter - 1:
+                        all_cost_time_dict["inner_layer"].append(
+                            perf_counter() - start_time_inner_layer
+                        )
+                        all_cost_time_dict["outer_layer"].append(
+                            perf_counter() - start_time_outer_layer
+                        )
+
                         logger.error(
                             "Stop the optimization, because there is no improvement"
                         )
@@ -397,8 +383,21 @@ class TR_SP:
 
                         num_iter = 0
                         num_merit_coeff_iter += 1
+
+                        all_cost_time_dict["outer_layer"].append(
+                            perf_counter() - start_time_outer_layer
+                        )
+                        start_time_outer_layer = perf_counter()
+
                         continue
                     else:
+                        all_cost_time_dict["inner_layer"].append(
+                            perf_counter() - start_time_inner_layer
+                        )
+                        all_cost_time_dict["outer_layer"].append(
+                            perf_counter() - start_time_outer_layer
+                        )
+
                         logger.error(
                             "Max merit coefficient iterations reached, but not satisfied constraints"
                         )

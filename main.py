@@ -232,7 +232,7 @@ def main(args):
                 )
                 end_time_construct_problem = perf_counter()
                 all_cost_time_dict[f"try_{num_tries}"]["initial_guess"][
-                    "construct_problem"
+                    "problem_construction"
                 ] = end_time_construct_problem - start_time_construct_problem
 
                 result = prob_initial_guess.solve(
@@ -269,7 +269,7 @@ def main(args):
                 with_self_collision=True,
             )
             end_time_construct_problem = perf_counter()
-            all_cost_time_dict[f"try_{num_tries}"]["construct_problem"] = (
+            all_cost_time_dict[f"try_{num_tries}"]["problem_construction"] = (
                 end_time_construct_problem - start_time_construct_problem
             )
 

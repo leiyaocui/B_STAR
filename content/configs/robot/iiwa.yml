@@ -1,0 +1,64 @@
+robot_cfg:
+  kinematics:
+    urdf_path: "robot/iiwa_description/iiwa.urdf"
+    asset_root_path: "robot/iiwa_description"
+    root_link: "root_link"
+    base_link: "iiwa7_link_0"
+    ee_link: "iiwa7_link_ee"
+
+    collision_link_names:
+      [
+        "iiwa7_link_0",
+        "iiwa7_link_1",
+        "iiwa7_link_2",
+        "iiwa7_link_3",
+        "iiwa7_link_4",
+        "iiwa7_link_5",
+        "iiwa7_link_6",
+        "iiwa7_link_7",
+      ]
+
+    self_collision_ignore:
+      {
+        "iiwa7_link_0":
+          [
+            "iiwa7_link_1",
+            "iiwa7_link_2",
+            "iiwa7_link_3",
+            "iiwa7_link_4",
+            "iiwa7_link_5",
+            "iiwa7_link_6",
+            "iiwa7_link_7",
+          ],
+        "iiwa7_link_1": ["iiwa7_link_2", "iiwa7_link_3"],
+        "iiwa7_link_2": ["iiwa7_link_3", "iiwa7_link_4"],
+        "iiwa7_link_3": ["iiwa7_link_4", "iiwa7_link_5"],
+        "iiwa7_link_4": ["iiwa7_link_5", "iiwa7_link_6"],
+        "iiwa7_link_5": ["iiwa7_link_6", "iiwa7_link_7"],
+        "iiwa7_link_6": ["iiwa7_link_7"],
+      }
+
+    mesh_link_names:
+      [
+        "iiwa7_link_0",
+        "iiwa7_link_1",
+        "iiwa7_link_2",
+        "iiwa7_link_3",
+        "iiwa7_link_4",
+        "iiwa7_link_5",
+        "iiwa7_link_6",
+        "iiwa7_link_7",
+      ]
+
+    cspace:
+      joint_names:
+        [
+          "iiwa7_joint_1",
+          "iiwa7_joint_2",
+          "iiwa7_joint_3",
+          "iiwa7_joint_4",
+          "iiwa7_joint_5",
+          "iiwa7_joint_6",
+          "iiwa7_joint_7",
+        ]
+      retract_config: [0.0, -0.78, 0.0, -1.4, 0.0, 0.6, 0.0]

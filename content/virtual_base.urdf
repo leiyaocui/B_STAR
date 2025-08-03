@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot name="virtual_base">
+  <link name="root_link" />
+
+  <link name="virtual_base_link_0" />
+  <link name="virtual_base_link_1" />
+  <link name="virtual_base_link_2" />
+  <joint name="virtual_base_joint_0" type="prismatic">
+    <parent link="root_link" />
+    <child link="virtual_base_link_0" />
+    <origin rpy="0 0 0" xyz="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="-3.0" upper="3.0" effort="100.0" velocity="0.0" />
+  </joint>
+  <joint name="virtual_base_joint_1" type="prismatic">
+    <parent link="virtual_base_link_0" />
+    <child link="virtual_base_link_1" />
+    <origin rpy="0 0 0" xyz="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-3.0" upper="3.0" effort="100.0" velocity="0.0" />
+  </joint>
+  <joint name="virtual_base_joint_2" type="revolute">
+    <parent link="virtual_base_link_1" />
+    <child link="virtual_base_link_2" />
+    <origin rpy="0 0 0" xyz="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100.0" velocity="0.0" />
+  </joint>
+
+  <joint name="root_fixed" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0" />
+    <parent link="virtual_base_link_2" />
+    <child link="" />
+  </joint>
+</robot>

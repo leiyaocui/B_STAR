@@ -12,7 +12,6 @@ class DiscreteCollisionTerm(Term):
         collision_model: pin.GeometryModel,
         sd_check: float,
         sd_safe: float,
-        num_threads: int = 8,
         name: str = "discrete-time collision avoidance",
         threshold: float = 1e-4,
     ):

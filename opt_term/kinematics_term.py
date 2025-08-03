@@ -7,19 +7,25 @@ from .term import Term, TermType
 
 class TrajSmoothTerm(Term):
     def __init__(
-        self, name: str = "joint space trajectory smoothness", threshold: float = 0.2
+        self,
+        k: int = 1,
+        offset: int = 0,
+        name: str = "joint space trajectory smoothness",
+        threshold: float = 0.2,
     ):
         super().__init__(TermType.COST_ABS, name, threshold)
+        self.k = k
+        self.offset = offset
 
     def _approx(self, traj_q: np.ndarray):
         return
 
     def _construct_approx_expr(self, traj_q: cp.Expression):
-        expr = cp.diff(traj_q[:, 3:], k=1, axis=0)
+        expr = cp.diff(traj_q[:, self.offset :], k=self.k, axis=0)
         return expr.flatten("C")
 
     def _eval(self, traj_q: np.ndarray):
-        value = np.diff(traj_q[:, 3:], axis=0)
+        value = np.diff(traj_q[:, self.offset :], n=self.k, axis=0)
         return value.flatten()
 
 
@@ -56,7 +62,6 @@ class EEPoseTerm(Term):
         target_pose_list: list[np.ndarray],
         delta_q: float = 1e-6,
         rad2meter: float = 0.1,
-        num_threads: int = 8,
         name: str = "operational space end effector pose",
         threshold: float = 1e-4,
     ):

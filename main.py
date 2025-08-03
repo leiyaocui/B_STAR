@@ -127,7 +127,11 @@ def construct_problem(
     prob.set_trust_region_size(trust_region_size, min_trust_region_size)
 
     prob.add_term(
-        opt_term.TrajSmoothTerm(threshold=opt_cfg["traj_smooth_term"]["threshold"]),
+        opt_term.TrajSmoothTerm(
+            k=opt_cfg["traj_smooth_term"]["k"],
+            offset=opt_cfg["traj_smooth_term"]["offset"],
+            threshold=opt_cfg["traj_smooth_term"]["threshold"],
+        ),
         merit_coeff=opt_cfg["traj_smooth_term"]["merit_coeff"],
     )
     prob.add_term(
@@ -142,7 +146,6 @@ def construct_problem(
             ee_frame_id,
             timestep_T_ee2world_list,
             T_ee2world_list,
-            num_threads=opt_cfg["num_threads"],
             threshold=opt_cfg["ee_pose_term"]["threshold"],
         ),
         merit_coeff=opt_cfg["ee_pose_term"]["merit_coeff"],
@@ -154,7 +157,6 @@ def construct_problem(
                 collision_model,
                 sd_check=opt_cfg["self_collision_term"]["sd_check"],
                 sd_safe=opt_cfg["self_collision_term"]["sd_safe"],
-                num_threads=opt_cfg["num_threads"],
                 threshold=opt_cfg["self_collision_term"]["threshold"],
             ),
             merit_coeff=opt_cfg["self_collision_term"]["merit_coeff"],

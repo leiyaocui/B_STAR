@@ -1,5 +1,4 @@
 seed: 42
-num_threads: 8
 
 max_tries: 25
 
@@ -14,6 +13,8 @@ tr_sp:
   merit_coeff_increase_ratio: 10.0
 
 traj_smooth_term:
+  k: 1
+  offset: 3
   merit_coeff: 1.0
   threshold: 0.2
 

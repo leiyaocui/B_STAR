@@ -96,16 +96,17 @@ def convert_curobo_config_to_srdf(config: dict, with_ground_plane: bool = True):
 
     robot_cfg = config["robot_cfg"]["kinematics"]
 
-    disabled_collisions = robot_cfg["self_collision_ignore"]
-    for link1, ignored_links in disabled_collisions.items():
-        for link2 in ignored_links:
-            ET.SubElement(
-                root,
-                "disable_collisions",
-                link1=link1,
-                link2=link2,
-                reason="from cuRobo",
-            )
+    if "self_collision_ignore" in robot_cfg:
+        disabled_collisions = robot_cfg["self_collision_ignore"]
+        for link1, ignored_links in disabled_collisions.items():
+            for link2 in ignored_links:
+                ET.SubElement(
+                    root,
+                    "disable_collisions",
+                    link1=link1,
+                    link2=link2,
+                    reason="from cuRobo",
+                )
 
     if with_ground_plane:
         ET.SubElement(

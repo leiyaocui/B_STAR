@@ -44,11 +44,9 @@ class DiscreteCollisionTerm(Term):
 
             pointA = distance_result.getNearestPoint1().copy()  # in world frame
             pointB = distance_result.getNearestPoint2().copy()  # in world frame
-            normal = pointB - pointA
-            normal_length = np.linalg.norm(normal)
-            if normal_length < 1e-6:
+            normal = -distance_result.normal.copy()
+            if np.linalg.norm(normal) < 1e-6:
                 continue
-            normal /= normal_length
 
             joint_id_A = self.collision_model.geometryObjects[
                 collision_pair.first

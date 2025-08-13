@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-import hppfcl
+import coal
 import numpy as np
 import pinocchio as pin
 import yaml
@@ -141,7 +141,7 @@ def load_robot(config_path: str, asset_path: str, with_ground_plane: bool = True
 
     if with_ground_plane:
         ground_plane = pin.GeometryObject(
-            "ground_plane", 0, 1, pin.SE3().Identity(), hppfcl.Plane(0.0, 0.0, 1.0, 0.0)
+            "ground_plane", 0, 1, pin.SE3().Identity(), coal.Plane(0.0, 0.0, 1.0, 0.0)
         )
         ground_plane_id = collision_model.addGeometryObject(ground_plane)
         for i in range(collision_model.ngeoms):

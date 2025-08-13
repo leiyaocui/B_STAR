@@ -103,7 +103,7 @@ def calc_statistics(results: dict):
 
 def construct_problem(
     model: pin.Model,
-    collision_model: pin.Model,
+    collision_model: pin.GeometryModel,
     ee_frame_id: int,
     traj_q_init: np.ndarray,
     timestep_T_ee2world_list: list[int],

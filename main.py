@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from time import perf_counter
 
+import coal
 import numpy as np
 import pinocchio as pin
 import yaml
@@ -178,6 +179,7 @@ def main(args):
     logger.log(args.log_level, opt_cfg)
 
     pin.seed(opt_cfg["seed"])
+    coal.seed(opt_cfg["seed"])
     rng_gen = np.random.default_rng(seed=opt_cfg["seed"])
 
     data_dict = load_all_traj_data(args.traj_data_path)

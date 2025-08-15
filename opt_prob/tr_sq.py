@@ -237,6 +237,8 @@ class TR_SP:
                     # "========== Curret Approx ==========\n"
                     # "Cost Values:\n{}\n"
                     # "Constraint Violations:\n{}\n"
+                    # "========== Trust Region ==========\n"
+                    # "{}\n"
                     "========== Merit ==========\n"
                     "Previous Actual: {}\n"
                     "Current Actual: {}\n"
@@ -254,6 +256,7 @@ class TR_SP:
                     # lambda: pformat_table(constraint_violations_curr),
                     # lambda: pformat_table(approx_cost_values_curr),
                     # lambda: pformat_table(approx_constraint_violations_curr),
+                    # lambda: trust_region_size[0],
                     lambda: merit_prev,
                     lambda: merit_curr,
                     lambda: approx_merit_curr,

@@ -222,13 +222,14 @@ The framework will automatically handle:
 If you find our research beneficial, please cite it as follows:
 
 ```bibtex
-@misc{zhao2025befficientoptimalbase,
-      title={B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators}, 
-      author={Zihang Zhao and Leiyao Cui and Sirui Xie and Saiyao Zhang and Zhi Han and Lecheng Ruan and Yixin Zhu},
-      year={2025},
-      eprint={2504.12719},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2504.12719}, 
+@article{zhao2025b,
+    title={B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators},
+    author={Zhao, Zihang and Cui, Leiyao and Xie, Sirui and Zhang, Saiyao and Han, Zhi and Ruan, Lecheng and Zhu, Yixin},
+    journal={IEEE Robotics and Automation Letters (RA-L)},
+    volume={10},
+    number={10},
+    pages={10634-10641},
+    year={2025},
+    publisher={IEEE}
 }
 ```

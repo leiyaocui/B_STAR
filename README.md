@@ -1,5 +1,10 @@
 # B*: Robot Trajectory Optimization Framework
 
+<div align="center">
+  <a href="https://arxiv.org/abs/2504.12719"><img src='https://img.shields.io/badge/arXiv-Paper-red?logo=arxiv&logoColor=white' alt='arXiv'></a>
+  <a href='https://bstar-planning.github.io'><img src='https://img.shields.io/badge/Project_Page-Website-green?logo=googlechrome&logoColor=white' alt='Project Page'></a>
+</div>
+
 This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io).
 
 ## Abstract

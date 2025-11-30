@@ -5,7 +5,7 @@
   <a href='https://bstar-planning.github.io'><img src='https://img.shields.io/badge/Project_Page-Website-green?logo=googlechrome&logoColor=white' alt='Project Page'></a>
 </div>
 
-This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io).
+This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io), which also serves as **a fully Python-based alternative to [TrajOpt](https://github.com/joschu/trajopt)**.
 
 ## Abstract
 

@@ -17,6 +17,12 @@ from utils.logger import setup_logger
 from utils.robot import compute_traj_ik, load_robot
 
 
+def set_seed(seed: int):
+    pin.seed(seed)
+    coal.seed(seed)
+    np.random.seed(seed)
+
+
 def load_all_traj_data(data_path: str):
     data_dict = pickle.load(open(data_path, "rb"))
     data_dict = dict(filter(lambda x: "traj" in x[0], data_dict.items()))
@@ -178,10 +184,6 @@ def main(args):
     opt_cfg = yaml.safe_load(open(args.opt_cfg_path, "r"))
     logger.log(args.log_level, opt_cfg)
 
-    pin.seed(opt_cfg["seed"])
-    coal.seed(opt_cfg["seed"])
-    rng_gen = np.random.default_rng(seed=opt_cfg["seed"])
-
     data_dict = load_all_traj_data(args.traj_data_path)
     logger.log(args.log_level, f"File path: {args.traj_data_path}")
 
@@ -197,6 +199,10 @@ def main(args):
         logger.log(
             args.log_level, f"[{idx + 1} / {len(data_dict)}] Processing {traj_name}..."
         )
+
+        seed = opt_cfg["seed"] + idx
+        set_seed(seed)
+        rng_gen = np.random.default_rng(seed=seed)
 
         start_time = perf_counter()
         num_tries = 0

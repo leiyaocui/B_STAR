@@ -5,7 +5,7 @@
   <a href='https://bstar-planning.github.io'><img src='https://img.shields.io/badge/Project_Page-Website-green?logo=googlechrome&logoColor=white' alt='Project Page'></a>
 </div>
 
-This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io).
+This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io), which also serves as **a fully Python-based alternative to [TrajOpt](https://github.com/joschu/trajopt)**.
 
 ## Abstract
 
@@ -227,7 +227,7 @@ The framework will automatically handle:
 
 ## Citation
 
-If you find our research beneficial, please cite it as follows:
+If you find our research beneficial, please cite both our paper and the prior works that strongly motivated this study as follows:
 
 ```bibtex
 @article{zhao2025b,
@@ -239,5 +239,18 @@ If you find our research beneficial, please cite it as follows:
     pages={10634-10641},
     year={2025},
     publisher={IEEE}
+}
+```
+
+```bibtex
+@article{schulman2014motion,
+  title={Motion planning with sequential convex optimization and convex collision checking},
+  author={Schulman, John and Duan, Yan and Ho, Jonathan and Lee, Alex and Awwal, Ibrahim and Bradlow, Henry and Pan, Jia and Patil, Sachin and Goldberg, Ken and Abbeel, Pieter},
+  journal={The International Journal of Robotics Research},
+  volume={33},
+  number={9},
+  pages={1251--1270},
+  year={2014},
+  publisher={Sage Publications Sage UK: London, England}
 }
 ```

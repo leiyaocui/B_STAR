@@ -1,11 +1,29 @@
-# B*: Robot Trajectory Optimization Framework
+<h1 align="center">B*: Robot Trajectory Optimization Framework</h1>
 
 <div align="center">
   <a href="https://arxiv.org/abs/2504.12719"><img src='https://img.shields.io/badge/arXiv-Paper-red?logo=arxiv&logoColor=white' alt='arXiv'></a>
   <a href='https://bstar-planning.github.io'><img src='https://img.shields.io/badge/Project_Page-Website-green?logo=googlechrome&logoColor=white' alt='Project Page'></a>
 </div>
 
-This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io).
+<h4 align="center">Accepted by IEEE Robotics and Automation Letters (RA-L) 2025</h4>
+
+<p align="center">
+  <a href="https://zihangzhao.com/" target="_blank">Zihang Zhao</a><sup>⚖️</sup>,
+  <a href="https://lycui.com/" target="_blank">Leiyao Cui</a><sup>⚖️</sup>,
+  <a href="https://siruixie.github.io/" target="_blank">Sirui Xie</a><sup>⚖️</sup>,
+  <a href="https://saiyaozhang.com/" target="_blank">Saiyao Zhang</a>,
+  Zhi Han,
+  <a href="https://leleucla.github.io/" target="_blank">Lecheng Ruan</a>,
+  <a href="https://yzhu.io/" target="_blank">Yixin Zhu</a><sup>✉️</sup>
+</p>
+
+<p align="center">
+  ⚖️: Equal contributor, ✉️: Corresponding author
+</p>
+
+---
+
+This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io), which also serves as **a fully Python-based alternative to [TrajOpt](https://github.com/joschu/trajopt)**.
 
 ## Abstract
 
@@ -227,7 +245,7 @@ The framework will automatically handle:
 
 ## Citation
 
-If you find our research beneficial, please cite it as follows:
+If you find our research beneficial, please cite both our paper and the prior works that strongly motivated this study as follows:
 
 ```bibtex
 @article{zhao2025b,
@@ -239,5 +257,18 @@ If you find our research beneficial, please cite it as follows:
     pages={10634-10641},
     year={2025},
     publisher={IEEE}
+}
+```
+
+```bibtex
+@article{schulman2014motion,
+  title={Motion planning with sequential convex optimization and convex collision checking},
+  author={Schulman, John and Duan, Yan and Ho, Jonathan and Lee, Alex and Awwal, Ibrahim and Bradlow, Henry and Pan, Jia and Patil, Sachin and Goldberg, Ken and Abbeel, Pieter},
+  journal={The International Journal of Robotics Research},
+  volume={33},
+  number={9},
+  pages={1251--1270},
+  year={2014},
+  publisher={Sage Publications Sage UK: London, England}
 }
 ```

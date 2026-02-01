@@ -1,9 +1,27 @@
-# B*: Robot Trajectory Optimization Framework
+<h1 align="center">B*: Robot Trajectory Optimization Framework</h1>
 
 <div align="center">
   <a href="https://arxiv.org/abs/2504.12719"><img src='https://img.shields.io/badge/arXiv-Paper-red?logo=arxiv&logoColor=white' alt='arXiv'></a>
   <a href='https://bstar-planning.github.io'><img src='https://img.shields.io/badge/Project_Page-Website-green?logo=googlechrome&logoColor=white' alt='Project Page'></a>
 </div>
+
+<h4 align="center">Accepted by IEEE Robotics and Automation Letters (RA-L) 2025</h4>
+
+<p align="center">
+  <a href="https://zihangzhao.com/" target="_blank">Zihang Zhao</a><sup>⚖️</sup>,
+  <a href="https://lycui.com/" target="_blank">Leiyao Cui</a><sup>⚖️</sup>,
+  <a href="https://siruixie.github.io/" target="_blank">Sirui Xie</a><sup>⚖️</sup>,
+  <a href="https://saiyaozhang.com/" target="_blank">Saiyao Zhang</a>,
+  Zhi Han,
+  <a href="https://leleucla.github.io/" target="_blank">Lecheng Ruan</a>,
+  <a href="https://yzhu.io/" target="_blank">Yixin Zhu</a><sup>✉️</sup>
+</p>
+
+<p align="center">
+  ⚖️: Equal contributor, ✉️: Corresponding author
+</p>
+
+---
 
 This repository provides the official implementation of [B*: Efficient and Optimal Base Placement for Fixed-Base Manipulators](https://bstar-planning.github.io), which also serves as **a fully Python-based alternative to [TrajOpt](https://github.com/joschu/trajopt)**.
 

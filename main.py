@@ -168,6 +168,15 @@ def construct_problem(
             ),
             merit_coeff=opt_cfg["self_collision_term"]["merit_coeff"],
         )
+    prob.add_term(
+        opt_term.ManipulabilityTerm(
+            model,
+            ee_frame_id,
+            min_manipulability=opt_cfg["manipulability_term"]["min_manipulability"],
+            threshold=opt_cfg["manipulability_term"]["threshold"],
+        ),
+        merit_coeff=opt_cfg["manipulability_term"]["merit_coeff"],
+    )
     return prob
 
 

@@ -31,3 +31,8 @@ self_collision_term:
   sd_safe: 0.05
   merit_coeff: 200.0
   threshold: 1.0e-4
+
+manipulability_term:
+  min_manipulability: 0.05
+  merit_coeff: 0.1
+  threshold: 1.0e-4
